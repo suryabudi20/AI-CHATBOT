@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FASTERA</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #f3f3f3;
+    --line: #e6e6e6;
+    --ink: #111111;
+    --muted: #7a7a7a;
+    --user-bg: #111111;
+    --user-ink: #ffffff;
+    --ai-bg: #f1f1f1;
+    --ai-ink: #111111;
+    --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    justify-content: center;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 760px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* ---------- Header ---------- */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 22px 24px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* Four strings: G D A E, thicker toward the low end */
+  .strings {
+    width: 34px;
+    height: 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .strings span { display: block; background: var(--ink); border-radius: 2px; }
+  .strings span:nth-child(1) { height: 1px; }
+  .strings span:nth-child(2) { height: 1.5px; }
+  .strings span:nth-child(3) { height: 2.5px; }
+  .strings span:nth-child(4) { height: 4px; }
+
+  header h1 {
+    font-size: 1.125rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  header p {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  /* ---------- Chat area ---------- */
+  #chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+  }
+  #chat::-webkit-scrollbar { width: 8px; }
+  #chat::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 8px; }
+  #chat::-webkit-scrollbar-track { background: transparent; }
+
+  .msg {
+    max-width: 82%;
+    padding: 11px 16px;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .msg.user {
+    align-self: flex-end;
+    background: var(--user-bg);
+    color: var(--user-ink);
+    border-radius: 20px 20px 6px 20px;
+  }
+  .msg.ai {
+    align-self: flex-start;
+    background: var(--ai-bg);
+    color: var(--ai-ink);
+    border-radius: 20px 20px 20px 6px;
+    white-space: normal;
+  }
+
+  /* Konten hasil render markdown di bubble AI */
+  .msg.ai > :first-child { margin-top: 0; }
+  .msg.ai > :last-child { margin-bottom: 0; }
+  .msg.ai p { margin: 0 0 .65em; }
+  .msg.ai h4 { font-size: .9375rem; font-weight: 650; margin: 1em 0 .4em; }
+  .msg.ai ul, .msg.ai ol { margin: .3em 0 .7em; padding-left: 1.4em; }
+  .msg.ai li { margin: .2em 0; }
+  .msg.ai strong { font-weight: 650; }
+  .msg.ai code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .85em;
+    background: #e2e2e2;
+    padding: .1em .38em;
+    border-radius: 5px;
+  }
+  .msg.ai pre {
+    background: #111;
+    color: #f3f3f3;
+    border-radius: 12px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    margin: .5em 0 .8em;
+  }
+  .msg.ai pre code { background: none; padding: 0; color: inherit; font-size: .82rem; line-height: 1.5; }
+  .msg.ai blockquote { border-left: 3px solid #c4c4c4; padding-left: 12px; color: #444; margin: .5em 0 .8em; }
+  .msg.ai hr { border: none; border-top: 1px solid #d6d6d6; margin: .9em 0; }
+  .msg.ai a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+  .msg.ai .table-wrap { overflow-x: auto; margin: .5em 0 .8em; }
+  .msg.ai table { border-collapse: collapse; font-size: .875rem; width: 100%; }
+  .msg.ai th, .msg.ai td { border: 1px solid #d0d0d0; padding: 6px 10px; text-align: left; }
+  .msg.ai th { background: #e6e6e6; font-weight: 650; }
+  .msg.error {
+    border: 1px solid #111;
+    background: var(--bg);
+  }
+
+  /* ---------- Empty state ---------- */
+  .intro {
+    margin: auto;
+    text-align: center;
+    max-width: 420px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .suggestions {
+    margin-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  .suggestions button {
+    font: inherit;
+    font-size: 0.8125rem;
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .suggestions button:hover { border-color: var(--ink); }
+
+  /* ---------- Typing indicator ---------- */
+  .typing {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--ai-bg);
+    color: var(--muted);
+    font-size: 0.875rem;
+    padding: 11px 16px;
+    border-radius: 20px 20px 20px 6px;
+  }
+  .dots { display: inline-flex; gap: 4px; }
+  .dots i {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--muted);
+    animation: pulse 1.2s infinite ease-in-out;
+  }
+  .dots i:nth-child(2) { animation-delay: .15s; }
+  .dots i:nth-child(3) { animation-delay: .3s; }
+  @keyframes pulse {
+    0%, 80%, 100% { opacity: .25; transform: translateY(0); }
+    40% { opacity: 1; transform: translateY(-3px); }
+  }
+
+  /* ---------- Input ---------- */
+  .composer {
+    padding: 14px 24px 22px;
+    border-top: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 6px 6px 6px 20px;
+    transition: border-color .15s, background .15s;
+  }
+  .field:focus-within { background: var(--bg); border-color: var(--ink); }
+
+  #input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    font-size: 0.9375rem;
+    color: var(--ink);
+    padding: 8px 0;
+  }
+  #input::placeholder { color: #9a9a9a; }
+
+  #send {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--ink);
+    border: none;
+    border-radius: 999px;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+  }
+  #send:hover { opacity: .85; }
+  #send:active { transform: scale(.97); }
+  #send:disabled { opacity: .35; cursor: not-allowed; }
+  #send svg { width: 15px; height: 15px; }
+
+  button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  @media (max-width: 520px) {
+    header { padding: 18px 16px 14px; }
+    #chat { padding: 16px; }
+    .composer { padding: 12px 16px 16px; }
+    .msg { max-width: 90%; }
+    #send .label { display: none; }
+    #send { padding: 10px 12px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #chat { scroll-behavior: auto; }
+    .dots i { animation: none; opacity: .6; }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="strings" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <div>
+        <h1>Guitar Bass Music Theory AI</h1>
+        <p>Tugas FASTERA 2026 Week 3</p>
+      </div>
+    </header>
+
+    <main id="chat" aria-live="polite">
+      <div class="intro" id="intro">
+        Mulai dengan pertanyaan Anda sendiri, atau pilih salah satu contoh berikut.
+        <div class="suggestions">
+          <button type="button">Apa itu root note dan fifth pada bass?</button>
+          <button type="button">Jelaskan tangga nada mayor</button>
+          <button type="button">Bagaimana membuat walking bass?</button>
+        </div>
+      </div>
+    </main>
+
+    <div class="composer">
+      <div class="field">
+        <input id="input" type="text" placeholder="Ketik pertanyaan Anda..." autocomplete="off" aria-label="Pertanyaan Anda">
+        <button id="send" type="button">
+          <span class="label">Kirim</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Ganti dengan URL webhook n8n Anda
+  const WEBHOOK_URL = "";
+
+  const chat = document.getElementById("chat");
+  const input = document.getElementById("input");
+  const sendBtn = document.getElementById("send");
+  const intro = document.getElementById("intro");
+
+  let busy = false;
+
+  function scrollToBottom() {
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  /* ---------- Renderer markdown mini (aman dari injeksi HTML) ---------- */
+  function escapeHtml(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  // Teks yang masuk ke fungsi ini sudah di-escape
+  function inlineFormat(s) {
+    const codes = [];
+    s = s.replace(/`([^`\n]+)`/g, (_, c) => {
+      codes.push(c);
+      return "\u0000" + (codes.length - 1) + "\u0000";
+    });
+    s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    s = s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");      // **tebal**
+    s = s.replace(/__(.+?)__/g, "<strong>$1</strong>");          // __tebal__
+    s = s.replace(/\*(?!\s)([^*\n]*[^*\s])\*/g, "<strong>$1</strong>"); // *tebal*
+    s = s.replace(/(^|[\s(])_(?!\s)([^_\n]*[^_\s])_(?=$|[\s).,!?:;])/g, "$1<em>$2</em>"); // _miring_
+    s = s.replace(/~~(.+?)~~/g, "<del>$1</del>");
+    s = s.replace(/\u0000(\d+)\u0000/g, (_, i) => "<code>" + codes[i] + "</code>");
+    return s;
+  }
+
+  function renderMarkdown(src) {
+    src = String(src).replace(/\r\n/g, "\n");
+    // Jika "\n" datang sebagai teks literal, ubah jadi baris baru sungguhan
+    if (!src.includes("\n") && src.includes("\\n")) src = src.replace(/\\n/g, "\n");
+
+    // Ambil blok kode lebih dulu agar isinya tidak diformat
+    const blocks = [];
+    src = src.replace(/```[^\n]*\n?([\s\S]*?)```/g, (_, code) => {
+      blocks.push(code.replace(/\n$/, ""));
+      return "\n\u0001" + (blocks.length - 1) + "\u0001\n";
+    });
+
+    const lines = escapeHtml(src).split("\n");
+    const reUl = /^\s*[-*•]\s+(.*)$/;
+    const reOl = /^\s*\d+[.)]\s+(.*)$/;
+    const reHeading = /^\s*(#{1,6})\s+(.*)$/;
+    const reQuote = /^\s*&gt;\s?(.*)$/;
+    const reHr = /^\s*([-*_])(\s*\1){2,}\s*$/;
+    const reCode = /^\u0001(\d+)\u0001$/;
+    const reTableSep = /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/;
+
+    const isTableStart = (i) =>
+      lines[i] && lines[i].includes("|") && lines[i + 1] !== undefined &&
+      lines[i + 1].includes("-") && reTableSep.test(lines[i + 1]);
+
+    const isBlockStart = (i) => {
+      const l = lines[i];
+      return reCode.test(l) || reHeading.test(l) || reQuote.test(l) || reHr.test(l) ||
+             reUl.test(l) || reOl.test(l) || isTableStart(i);
+    };
+
+    const splitRow = (row) =>
+      row.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
+
+    let html = "";
+    let i = 0;
+
+    while (i < lines.length) {
+      const line = lines[i];
+      let m;
+
+      if (!line.trim()) { i++; continue; }
+
+      if ((m = line.match(reCode))) {
+        html += "<pre><code>" + escapeHtml(blocks[m[1]]) + "</code></pre>";
+        i++; continue;
+      }
+
+      if ((m = line.match(reHeading))) {
+        html += "<h4>" + inlineFormat(m[2]) + "</h4>";
+        i++; continue;
+      }
+
+      if (reHr.test(line)) { html += "<hr>"; i++; continue; }
+
+      if (reQuote.test(line)) {
+        const parts = [];
+        while (i < lines.length && (m = lines[i].match(reQuote))) {
+          parts.push(inlineFormat(m[1]));
+          i++;
+        }
+        html += "<blockquote>" + parts.join("<br>") + "</blockquote>";
+        continue;
+      }
+
+      if (isTableStart(i)) {
+        const head = splitRow(lines[i]);
+        i += 2;
+        let body = "";
+        while (i < lines.length && lines[i].includes("|") && lines[i].trim()) {
+          body += "<tr>" + splitRow(lines[i]).map((c) => "<td>" + inlineFormat(c) + "</td>").join("") + "</tr>";
+          i++;
+        }
+        html += '<div class="table-wrap"><table><thead><tr>' +
+          head.map((c) => "<th>" + inlineFormat(c) + "</th>").join("") +
+          "</tr></thead><tbody>" + body + "</tbody></table></div>";
+        continue;
+      }
+
+      if (reUl.test(line) || reOl.test(line)) {
+        const ordered = reOl.test(line);
+        const re = ordered ? reOl : reUl;
+        const tag = ordered ? "ol" : "ul";
+        let items = "";
+        while (i < lines.length) {
+          // izinkan satu baris kosong di antara item daftar yang sama
+          let j = i;
+          if (!lines[j].trim() && lines[j + 1] !== undefined && re.test(lines[j + 1])) j++;
+          if (!(m = lines[j].match(re))) break;
+          items += "<li>" + inlineFormat(m[1]) + "</li>";
+          i = j + 1;
+        }
+        html += "<" + tag + ">" + items + "</" + tag + ">";
+        continue;
+      }
+
+      // Paragraf biasa
+      const para = [];
+      while (i < lines.length && lines[i].trim() && (para.length === 0 || !isBlockStart(i))) {
+        para.push(inlineFormat(lines[i]));
+        i++;
+      }
+      html += "<p>" + para.join("<br>") + "</p>";
+    }
+
+    return html;
+  }
+
+  function addMessage(text, type, extraClass) {
+    const el = document.createElement("div");
+    el.className = "msg " + type + (extraClass ? " " + extraClass : "");
+    if (type === "ai") {
+      el.innerHTML = renderMarkdown(text); // sudah di-escape, aman dari injeksi HTML
+    } else {
+      el.textContent = text;               // pesan pengguna tetap teks biasa
+    }
+    chat.appendChild(el);
+    scrollToBottom();
+    return el;
+  }
+
+  function showTyping() {
+    const el = document.createElement("div");
+    el.className = "typing";
+    el.id = "typing";
+    el.innerHTML = '<span class="dots"><i></i><i></i><i></i></span><span>AI sedang memikirkan...</span>';
+    chat.appendChild(el);
+    scrollToBottom();
+  }
+
+  function hideTyping() {
+    const el = document.getElementById("typing");
+    if (el) el.remove();
+  }
+
+  // Mengambil teks jawaban dari berbagai kemungkinan format respons n8n
+  function extractReply(data) {
+    if (typeof data === "string") return data;
+    if (Array.isArray(data)) return extractReply(data[0]);
+    if (data && typeof data === "object") {
+      const keys = ["output", "text", "response", "message", "answer", "reply"];
+      for (const k of keys) {
+        if (typeof data[k] === "string" && data[k].trim()) return data[k];
+      }
+      return JSON.stringify(data, null, 2);
+    }
+    return "";
+  }
+
+  function setBusy(state) {
+    busy = state;
+    sendBtn.disabled = state;
+  }
+
+  async function sendMessage(textOverride) {
+    const text = (textOverride ?? input.value).trim();
+    if (!text || busy) return;
+
+    if (intro) intro.remove();
+
+    addMessage(text, "user");
+    input.value = "";
+    setBusy(true);
+    showTyping();
+
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chatInput: text })
+      });
+
+      if (!res.ok) throw new Error("HTTP " + res.status);
+
+      const raw = await res.text();
+      let data;
+      try { data = JSON.parse(raw); } catch { data = raw; }
+
+      const reply = extractReply(data);
+      hideTyping();
+      addMessage(reply || "Tidak ada jawaban dari AI.", "ai");
+    } catch (err) {
+      console.error(err);
+      hideTyping();
+      addMessage("Maaf, terjadi kesalahan jaringan", "ai", "error");
+    } finally {
+      setBusy(false);
+      input.focus();
+    }
+  }
+
+  sendBtn.addEventListener("click", () => sendMessage());
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  document.querySelectorAll(".suggestions button").forEach((btn) => {
+    btn.addEventListener("click", () => sendMessage(btn.textContent));
+  });
+
+  input.focus();
+</script>
+</body>
+</html>
