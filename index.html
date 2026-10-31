@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>FASTERA</title>
+<title>BassAI</title>
 <style>
   :root{--px:max(24px,calc((100% - 760px)/2));--bg:#fff;--surface:#f3f3f3;--line:#e6e6e6;--ink:#111;--muted:#7a7a7a;--ai-bg:#f1f1f1;
     --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
@@ -16,7 +16,6 @@
   button{font:inherit;color:inherit;cursor:pointer}
   button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 
-  header{display:flex;align-items:center;gap:14px;padding:20px 24px 16px}
   .side{width:264px;flex-shrink:0;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:calc(24px + env(safe-area-inset-top,0px)) 14px 24px;background:var(--bg)}
   .brand{display:flex;align-items:center;gap:14px;padding:0 10px 24px}
   .brand h1{font-size:1rem;font-weight:650;letter-spacing:-.01em;line-height:1.25}
@@ -155,16 +154,218 @@
     .fab{right:16px;width:48px;padding:0;justify-content:center}.fab span{display:none}
   }
   @media (prefers-reduced-motion:reduce){#chat{scroll-behavior:auto}.dots i{animation:none;opacity:.6}#needle,.fb .c i,.side,.scrim{transition:none}}
+
+  /* ---------- Landing, akun, dialog ---------- */
+  .app[hidden],#landing[hidden],.fld[hidden]{display:none}
+  .hello{font-weight:650;font-size:1.0625rem;color:var(--ink);margin-bottom:6px}
+  .me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:14px 10px 0;border-top:1px solid var(--line)}
+  .av{width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:650;font-size:.875rem;flex-shrink:0}
+  .who{min-width:0;flex:1}
+  .who b{display:block;font-size:.8125rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .who small{display:block;font-size:.6875rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .out{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;font-size:.75rem;font-weight:600}
+  .out:hover{border-color:var(--ink)}
+
+  #landing{width:100%;height:100%;overflow-y:auto;scroll-behavior:smooth;background:var(--bg)}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+  .lnav{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.85);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);padding-top:env(safe-area-inset-top,0px);border-bottom:1px solid var(--line)}
+  .lnav .wrap{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .logo{display:flex;align-items:center;gap:12px;font-size:1.25rem;font-weight:700;letter-spacing:-.02em}
+  .acts{display:flex;gap:8px}
+  .btn.lg{padding:14px 26px;font-size:.9375rem}
+  .btn.inv{background:#fff;color:var(--ink);border-color:#fff}
+  .btn.ghostinv{background:transparent;color:#fff;border-color:#555}
+  .btn.ghostinv:hover{border-color:#fff}
+  .hero{text-align:center;padding:76px 0 24px}
+  .hero h2{font-size:clamp(2.3rem,6.2vw,4.5rem);font-weight:750;letter-spacing:-.04em;line-height:1.04;max-width:13em;margin:0 auto}
+  .lead{margin:22px auto 0;font-size:1.125rem;line-height:1.6;color:#555;max-width:35em}
+  .cta{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:32px}
+  .fine{margin-top:14px;font-size:.8125rem;color:var(--muted)}
+  .stage{margin:48px auto 0;border:1px solid var(--line);border-radius:28px;background:#f7f7f7;padding:16px;box-shadow:0 30px 60px -34px rgba(0,0,0,.28);text-align:left}
+  .stbar{display:flex;flex-wrap:wrap;gap:8px;padding:2px 4px 14px}
+  .pill{font-size:.8125rem;font-weight:600;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:6px 14px}
+  .stbody{background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:20px 12px 8px;overflow-x:auto;color:var(--ink)}
+  .hsvg{display:block;width:100%;min-width:620px;height:auto}
+  .hsvg text{font:650 11px var(--font);text-anchor:middle}
+  .hsvg .fn{fill:var(--muted);font-weight:400}
+  .pop{opacity:0;transform-box:fill-box;transform-origin:center;animation:popin .45s ease forwards;animation-delay:calc(var(--i)*32ms + .25s)}
+  @keyframes popin{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+
+  .sec{text-align:center;padding:96px 0 34px}
+  .sec h2{font-size:clamp(1.6rem,3.6vw,2.4rem);font-weight:750;letter-spacing:-.03em;line-height:1.1}
+  .sec p{margin-top:12px;color:#666;font-size:1rem}
+  .bento{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+  .s4{grid-column:span 4}.s3{grid-column:span 3}.s2{grid-column:span 2}
+  .bc{border:1px solid var(--line);border-radius:26px;padding:28px;background:var(--bg);display:flex;flex-direction:column;justify-content:space-between;gap:24px;overflow:hidden}
+  .bc.dark{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .bc h3{font-size:1.125rem;font-weight:700;letter-spacing:-.02em}
+  .bc p{font-size:.9rem;line-height:1.55;color:#666;margin-top:6px;max-width:32em}
+  .bc.dark p{color:#bdbdbd}
+  .chatp{display:flex;flex-direction:column;gap:8px}
+  .chatp .b{font-size:.8125rem;line-height:1.5;padding:10px 14px;border-radius:16px;max-width:88%;white-space:pre-line}
+  .chatp .u{align-self:flex-end;background:#fff;color:var(--ink);border-bottom-right-radius:5px}
+  .chatp .a{background:#232323;border-bottom-left-radius:5px}
+  .chatp pre{margin-top:8px;border:1px solid #555;border-radius:10px;padding:8px 12px;font:.78rem/1.5 var(--mono);overflow-x:auto;white-space:pre}
+  .mini{background:#f6f6f6;border-radius:16px;padding:12px 14px;color:var(--ink)}
+  .mini svg{display:block;width:100%;height:auto}
+  .qp{display:grid;gap:8px;font-size:.8125rem}
+  .qp b{font-weight:650;line-height:1.4;margin-bottom:2px}
+  .qp span{border:1px solid var(--line);border-radius:12px;padding:9px 14px}
+  .qp .ok{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .tp{display:flex;align-items:flex-end;justify-content:space-between;background:#f6f6f6;border-radius:16px;padding:16px 20px}
+  .tn2{font-size:2.6rem;font-weight:750;letter-spacing:-.03em;line-height:1}
+  .tn2 small{display:block;font-size:.75rem;font-weight:400;color:var(--muted);letter-spacing:0;margin-top:6px}
+  .bp{font-size:.8125rem;color:#555;text-align:right}
+  .bp b{font-size:1.4rem;color:var(--ink)}
+  .dd{display:flex;gap:6px;justify-content:flex-end;margin-top:8px}
+  .dd i{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--ink)}
+  .dd i.on{background:var(--ink)}
+
+  .band{margin-top:80px;background:var(--ink);color:#fff;border-radius:32px;padding:64px 28px;text-align:center}
+  .band h2{font-size:clamp(1.6rem,3.6vw,2.4rem);font-weight:750;letter-spacing:-.03em;line-height:1.12;max-width:16em;margin:0 auto}
+  .band p{margin-top:12px;color:#bdbdbd}
+  .lfoot{padding:32px 0 44px;font-size:.8125rem;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px 24px}
+  .or{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.75rem;margin:16px 0}
+  .or::before,.or::after{content:"";flex:1;border-top:1px solid var(--line)}
+
+  dialog{border:none;border-radius:22px;padding:0;width:min(400px,calc(100vw - 32px));margin:auto;color:var(--ink);background:var(--bg);box-shadow:0 12px 40px rgba(0,0,0,.25)}
+  dialog::backdrop{background:rgba(0,0,0,.4)}
+  .dlgIn{padding:24px 26px 22px}
+  .dlgHead{display:flex;justify-content:space-between;align-items:center}
+  .x{border:none;background:none;font-size:1.5rem;line-height:1;padding:2px 8px}
+  .seg{display:flex;background:var(--surface);border-radius:999px;padding:4px;margin:16px 0 18px}
+  .seg button{flex:1;border:none;background:none;border-radius:999px;padding:8px;font-size:.875rem;font-weight:600}
+  .seg button[aria-selected="true"]{background:var(--ink);color:#fff}
+  .fld{display:block;margin-bottom:12px}
+  .fld span{display:block;font-size:.8125rem;color:var(--muted);margin-bottom:5px}
+  .fld input{width:100%;font:inherit;font-size:.9375rem;border:1px solid var(--line);border-radius:12px;padding:11px 14px;background:var(--bg);color:var(--ink)}
+  .fld input:focus{outline:none;border-color:var(--ink)}
+  .err{min-height:1.4em;font-size:.8125rem;margin-bottom:8px}
+  .note{font-size:.75rem;color:var(--muted);margin-top:14px;line-height:1.5}
+
+  @media (max-width:860px){
+    .wrap{padding:0 16px}
+    .lnav .wrap{height:60px}
+    .hero{padding:48px 0 16px}
+    .stage{padding:10px;border-radius:22px;margin-top:36px}
+    .sec{padding:64px 0 24px}
+    .bento{grid-template-columns:1fr}
+    .s4,.s3,.s2{grid-column:auto}
+    .bc{padding:22px;border-radius:22px}
+    .band{padding:44px 20px;border-radius:24px;margin-top:56px}
+    .btn.lg{padding:13px 22px}
+  }
+  @media (prefers-reduced-motion:reduce){.pop{animation:none;opacity:1}#landing{scroll-behavior:auto}}
 </style>
 </head>
 <body>
-<div class="app">
+<div id="landing">
+  <header class="lnav"><div class="wrap">
+    <div class="logo"><div class="strings" aria-hidden="true"><span></span><span></span><span></span><span></span></div>BassAI</div>
+    <div class="acts">
+      <button type="button" class="btn ghost" data-open="in">Masuk</button>
+      <button type="button" class="btn" data-open="up">Daftar</button>
+    </div>
+  </div></header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h2>Pahami bass dari nol, satu nada demi satu nada.</h2>
+      <p class="lead">BassAI membantu pemula belajar teori bass. Tanya chatbot, lihat nadanya di fretboard, uji pemahaman lewat kuis, lalu setem bass Anda.</p>
+      <div class="cta">
+        <button type="button" class="btn lg" data-open="up">Mulai belajar</button>
+        <button type="button" class="btn ghost lg" data-demo>Coba demo tanpa login</button>
+      </div>
+      <p class="fine">Gratis. Akun hanya disimpan di browser Anda.</p>
+
+      <div class="stage">
+        <div class="stbar"><span class="pill">Root: C</span><span class="pill">Tangga nada: C mayor</span></div>
+        <div class="stbody"><svg class="hsvg" id="heroSvg" viewBox="0 0 720 196" role="img" aria-label="Fretboard bass dengan nada tangga nada C mayor"></svg></div>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2>Empat alat, satu tempat belajar.</h2>
+      <p>Semuanya ada di satu sidebar, jadi Anda tidak perlu berpindah aplikasi.</p>
+    </section>
+
+    <section class="bento">
+      <article class="bc dark s4">
+        <div><h3>Chatbot teori bass</h3><p>Tanyakan tangga nada, interval, atau walking bass. Jawaban datang dengan contoh tab yang mudah dibaca.</p></div>
+        <div class="chatp">
+          <div class="b u">Apa itu root dan fifth pada bass?</div>
+          <div class="b a">Root adalah nada dasar, fifth berjarak 7 semitone darinya. Pada C mayor: C lalu G.
+<pre>G|-----------|
+D|-----------|
+A|--3--------|
+E|------3----|</pre></div>
+        </div>
+      </article>
+
+      <article class="bc s2">
+        <div><h3>Fretboard interaktif</h3><p>Klik posisi mana saja untuk melihat dan mendengar nadanya.</p></div>
+        <div class="mini">
+          <svg viewBox="0 0 220 88" aria-hidden="true">
+            <g stroke="currentColor" fill="none"><path d="M10 14H210" stroke-width="1"/><path d="M10 34H210" stroke-width="1.5"/><path d="M10 54H210" stroke-width="2.5"/><path d="M10 74H210" stroke-width="4"/><path d="M10 8V80" stroke-width="4"/><path d="M80 10V78M140 10V78" stroke-width="1" opacity=".25"/></g>
+            <g font-size="10" font-weight="650" text-anchor="middle" font-family="inherit"><circle cx="110" cy="54" r="10" fill="currentColor"/><text x="110" y="57.5" fill="var(--bg)">C</text><circle cx="110" cy="74" r="10" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/><text x="110" y="77.5" fill="currentColor">G</text></g>
+          </svg>
+        </div>
+      </article>
+
+      <article class="bc s3">
+        <div><h3>Latihan teori</h3><p>Kuis pilihan ganda tingkat pemula dengan penjelasan. Soal baru bisa dibuat oleh AI.</p></div>
+        <div class="qp"><b>Senar A pada fret 3 menghasilkan nada apa?</b><span>B</span><span class="ok">C</span><span>D</span></div>
+      </article>
+
+      <article class="bc s3">
+        <div><h3>Tuner dan metronome</h3><p>Setem lewat mikrofon, lalu latih tempo dengan ketukan 4/4 dari 40 sampai 200 BPM.</p></div>
+        <div class="tp">
+          <div class="tn2">E<small>Tepat</small></div>
+          <div class="bp"><b>80</b> BPM<span class="dd"><i class="on"></i><i></i><i></i><i></i></span></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="band">
+      <h2>Siap main bass dengan paham teorinya?</h2>
+      <p>Buat akun, atau langsung coba semua fiturnya lewat mode demo.</p>
+      <div class="cta">
+        <button type="button" class="btn inv lg" data-open="up">Buat akun</button>
+        <button type="button" class="btn ghostinv lg" data-demo>Coba demo tanpa login</button>
+      </div>
+    </section>
+
+    <footer class="lfoot"><span>Tugas FASTERA 2026 Week 3</span><span>Versi demo: tanpa server, data disimpan di browser Anda.</span></footer>
+  </main>
+</div>
+
+<dialog id="authDlg" aria-labelledby="dlgTitle">
+  <div class="dlgIn">
+    <div class="dlgHead"><h2 id="dlgTitle">Masuk ke BassAI</h2><button type="button" class="x" id="dlgClose" aria-label="Tutup">&times;</button></div>
+    <div class="seg" role="tablist">
+      <button type="button" role="tab" id="segIn" aria-selected="true">Masuk</button>
+      <button type="button" role="tab" id="segUp" aria-selected="false">Daftar</button>
+    </div>
+    <form id="authForm" novalidate>
+      <label class="fld" id="nameRow" hidden><span>Nama</span><input id="fName" type="text" autocomplete="name"></label>
+      <label class="fld"><span>Email</span><input id="fEmail" type="email" autocomplete="email" inputmode="email"></label>
+      <label class="fld"><span>Kata sandi</span><input id="fPw" type="password" autocomplete="current-password"></label>
+      <p class="err" id="authErr" role="alert"></p>
+      <button type="submit" class="btn lg" id="authGo" style="width:100%">Masuk</button>
+    </form>
+    <div class="or">atau</div>
+    <button type="button" class="btn ghost lg" id="demoBtn" data-demo style="width:100%">Coba demo tanpa login</button>
+    <p class="note">Demo tanpa server. Data akun hanya disimpan di localStorage browser ini, jadi jangan memakai kata sandi yang Anda pakai di tempat lain.</p>
+  </div>
+</dialog>
+
+<div class="app" id="appView" hidden>
   <div class="scrim" id="scrim"></div>
   <aside class="side" id="side" aria-label="Menu fitur">
     <div class="brand">
       <div class="strings" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
       <div>
-        <h1>Guitar Bass Music Theory AI</h1>
+        <h1>BassAI</h1>
         <p>Tugas FASTERA 2026 Week 3</p>
       </div>
     </div>
@@ -174,6 +375,11 @@
       <button type="button" role="tab" data-tab="Quiz" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.8M12 17h.01"/></svg><span><b>Latihan</b><small>Kuis untuk pemula</small></span></button>
       <button type="button" role="tab" data-tab="Tool" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h3l2-6 4 12 3-9 2 3h4"/></svg><span><b>Tuner dan metronome</b><small>Setem dan latih tempo</small></span></button>
     </nav>
+    <div class="me">
+      <span class="av" id="meAv" aria-hidden="true"></span>
+      <div class="who"><b id="meName"></b><small id="meMail"></small></div>
+      <button type="button" class="out" id="logout">Keluar</button>
+    </div>
   </aside>
 
   <div class="main">
@@ -186,6 +392,7 @@
   <section class="panel" id="pChat">
     <main id="chat" aria-live="polite">
       <div class="intro" id="intro">
+        <p class="hello" id="hello"></p>
         Mulai dengan pertanyaan Anda sendiri, atau pilih salah satu contoh berikut.
         <div class="suggestions">
           <button type="button">Apa itu root note dan fifth pada bass?</button>
@@ -628,6 +835,102 @@
   });
   document.querySelectorAll(".suggestions button").forEach((b) => b.addEventListener("click", () => sendMessage(b.textContent)));
   if (!isMobile()) input.focus();
+
+  /* ============ Landing dan akun (demo, localStorage) ============ */
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } },
+    del(k) { try { localStorage.removeItem(k); } catch {} }
+  };
+  async function hashPw(pw, salt) {
+    const data = salt + pw;
+    if (window.crypto && crypto.subtle) {
+      const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(data));
+      return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join("");
+    }
+    let h = 5381; for (const ch of data) h = ((h << 5) + h + ch.charCodeAt(0)) | 0;
+    return "x" + h;
+  }
+
+  const dlg = $("authDlg"), form = $("authForm");
+  let mode = "in";
+  const showErr = (t) => { $("authErr").textContent = t; };
+
+  function setMode(m) {
+    mode = m; showErr("");
+    $("segIn").setAttribute("aria-selected", String(m === "in"));
+    $("segUp").setAttribute("aria-selected", String(m === "up"));
+    $("nameRow").hidden = m === "in";
+    $("dlgTitle").textContent = m === "in" ? "Masuk ke BassAI" : "Buat akun BassAI";
+    $("authGo").textContent = m === "in" ? "Masuk" : "Daftar";
+    $("fPw").autocomplete = m === "in" ? "current-password" : "new-password";
+  }
+  function openAuth(m) { setMode(m); form.reset(); dlg.showModal(); (m === "up" ? $("fName") : $("fEmail")).focus(); }
+
+  document.querySelectorAll("[data-open]").forEach((b) => b.addEventListener("click", () => openAuth(b.dataset.open)));
+  $("segIn").addEventListener("click", () => setMode("in"));
+  $("segUp").addEventListener("click", () => setMode("up"));
+  $("dlgClose").addEventListener("click", () => dlg.close());
+  dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault(); showErr("");
+    const name = $("fName").value.trim(), email = $("fEmail").value.trim().toLowerCase(), pw = $("fPw").value;
+    if (mode === "up" && !name) return showErr("Nama wajib diisi.");
+    if (!/^\S+@\S+\.\S+$/.test(email)) return showErr("Format email belum benar.");
+    if (pw.length < 6) return showErr("Kata sandi minimal 6 karakter.");
+    const users = store.get("bassai_users") || {};
+    if (mode === "up") {
+      if (users[email]) return showErr("Email ini sudah terdaftar. Silakan masuk.");
+      const salt = Math.random().toString(36).slice(2);
+      users[email] = { name, salt, hash: await hashPw(pw, salt) };
+      if (!store.set("bassai_users", users)) return showErr("Penyimpanan browser tidak tersedia, akun tidak bisa dibuat.");
+    } else {
+      const u = users[email];
+      if (!u || u.hash !== (await hashPw(pw, u.salt))) return showErr("Email atau kata sandi salah.");
+    }
+    store.set("bassai_session", email);
+    dlg.close(); form.reset();
+    enterApp(email, users[email]);
+  });
+
+  function enterApp(email, user) {
+    $("landing").hidden = true; $("appView").hidden = false;
+    $("meName").textContent = user.name; $("meMail").textContent = user.guest ? "Mode demo, tanpa akun" : email;
+    $("meAv").textContent = user.name.charAt(0).toUpperCase();
+    $("hello").textContent = user.guest ? "Selamat datang di mode demo." : "Halo, " + user.name + ".";
+    go("Chat");
+  }
+  $("logout").addEventListener("click", () => { store.del("bassai_session"); location.reload(); });
+
+  // Mode demo: masuk tanpa akun dan tanpa menyimpan sesi
+  function startDemo() { if (dlg.open) dlg.close(); enterApp("", { name: "Tamu", guest: true }); }
+  document.querySelectorAll("[data-demo]").forEach((b) => b.addEventListener("click", startDemo));
+
+  // Fretboard pada hero landing: nada tangga nada C mayor
+  (function buildHero() {
+    const S = [{ n: 43, y: 30, w: 1 }, { n: 38, y: 72, w: 1.5 }, { n: 33, y: 114, w: 2.5 }, { n: 28, y: 156, w: 4 }];
+    const C = [0, 2, 4, 5, 7, 9, 11], fw = 55, x0 = 44;
+    let g = "", d = "";
+    for (let f = 1; f <= 12; f++) g += '<path d="M' + (x0 + f * fw) + ' 22V164" stroke-width="1" opacity=".2"/>';
+    S.forEach((s) => { g += '<path d="M' + x0 + " " + s.y + "H" + (x0 + 12 * fw) + '" stroke-width="' + s.w + '"/>'; });
+    g += '<path d="M' + x0 + ' 18V168" stroke-width="5"/>';
+    S.forEach((s, si) => {
+      for (let f = 0; f <= 12; f++) {
+        const pc = (s.n + f) % 12;
+        if (!C.includes(pc)) continue;
+        const x = f === 0 ? x0 - 20 : x0 + f * fw - fw / 2, root = pc === 0;
+        d += '<g class="pop" style="--i:' + (f + si) + '"><circle cx="' + x + '" cy="' + s.y + '" r="13" fill="' + (root ? "currentColor" : "var(--bg)") + '" stroke="currentColor" stroke-width="1.5"/><text x="' + x + '" y="' + (s.y + 4) + '" fill="' + (root ? "var(--bg)" : "currentColor") + '">' + NOTES[pc] + "</text></g>";
+      }
+    });
+    [3, 5, 7, 9, 12].forEach((f) => { d += '<text class="fn" x="' + (x0 + f * fw - fw / 2) + '" y="190">' + f + "</text>"; });
+    $("heroSvg").innerHTML = '<g stroke="currentColor" fill="none">' + g + "</g>" + d;
+  })();
+
+  (function restore() {
+    const email = store.get("bassai_session"), users = store.get("bassai_users") || {};
+    if (email && users[email]) enterApp(email, users[email]);
+  })();
 </script>
 </body>
 </html>
