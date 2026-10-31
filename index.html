@@ -5,284 +5,185 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>FASTERA</title>
 <style>
-  :root {
-    --bg: #ffffff;
-    --surface: #f3f3f3;
-    --line: #e6e6e6;
-    --ink: #111111;
-    --muted: #7a7a7a;
-    --user-bg: #111111;
-    --user-ink: #ffffff;
-    --ai-bg: #f1f1f1;
-    --ai-ink: #111111;
-    --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  }
+  :root{--px:max(24px,calc((100% - 760px)/2));--bg:#fff;--surface:#f3f3f3;--line:#e6e6e6;--ink:#111;--muted:#7a7a7a;--ai-bg:#f1f1f1;
+    --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;display:flex;justify-content:center}
+  .app{width:100%;max-width:1180px;height:100%;display:flex}
+  .main{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  button{font:inherit;color:inherit;cursor:pointer}
+  button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  header{display:flex;align-items:center;gap:14px;padding:20px 24px 16px}
+  .side{width:264px;flex-shrink:0;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:calc(24px + env(safe-area-inset-top,0px)) 14px 24px;background:var(--bg)}
+  .brand{display:flex;align-items:center;gap:14px;padding:0 10px 24px}
+  .brand h1{font-size:1rem;font-weight:650;letter-spacing:-.01em;line-height:1.25}
+  .brand p{font-size:.75rem;color:var(--muted);margin-top:3px}
+  .menu{display:flex;flex-direction:column;gap:4px}
+  .menu button{display:flex;align-items:center;gap:12px;text-align:left;border:none;background:none;border-radius:14px;padding:11px 12px;transition:background .15s}
+  .menu button:hover{background:var(--surface)}
+  .menu button[aria-selected="true"]{background:var(--ink);color:#fff}
+  .menu svg{width:20px;height:20px;flex-shrink:0}
+  .menu b{display:block;font-size:.875rem;font-weight:600}
+  .menu small{display:block;font-size:.75rem;color:var(--muted);margin-top:1px}
+  .menu button[aria-selected="true"] small{color:#c9c9c9}
+  .topbar,.scrim{display:none}
+  .fab{position:fixed;z-index:10;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 16px 0 14px;border:none;border-radius:999px;background:var(--ink);color:#fff;font-size:.8125rem;font-weight:600;box-shadow:0 2px 10px rgba(0,0,0,.25);transition:transform .1s}
+  .fab[hidden]{display:none}
+  .fab:active{transform:scale(.96)}
+  .fab svg{width:20px;height:20px}
+  .panel:not(#pChat){padding-bottom:88px}
+  .strings{width:34px;height:26px;display:flex;flex-direction:column;justify-content:space-between;flex-shrink:0}
+  .strings span{display:block;background:var(--ink);border-radius:2px}
+  .strings span:nth-child(1){height:1px}.strings span:nth-child(2){height:1.5px}
+  .strings span:nth-child(3){height:2.5px}.strings span:nth-child(4){height:4px}
 
-  html, body { height: 100%; }
+  .panel{flex:1;min-height:0;overflow-y:auto;padding:24px var(--px)}
+  .panel[hidden]{display:none}
+  #pChat{display:flex;flex-direction:column;padding:0}
+  #pChat[hidden]{display:none}
+  #chat{flex:1;overflow-y:auto;padding:24px var(--px);display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
 
-  body {
-    font-family: var(--font);
-    background: var(--bg);
-    color: var(--ink);
-    -webkit-font-smoothing: antialiased;
-    display: flex;
-    justify-content: center;
-  }
+  .msg{max-width:82%;padding:11px 16px;font-size:.9375rem;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+  .msg.user{align-self:flex-end;background:var(--ink);color:#fff;border-radius:20px 20px 6px 20px}
+  .msg.ai{align-self:flex-start;background:var(--ai-bg);border-radius:20px 20px 20px 6px;white-space:normal;max-width:90%}
+  .msg.ai>:first-child{margin-top:0}.msg.ai>:last-child{margin-bottom:0}
+  .msg.ai p{margin:0 0 .65em}
+  .msg.ai h4{font-size:.9375rem;font-weight:650;margin:1em 0 .4em}
+  .msg.ai ul,.msg.ai ol{margin:.3em 0 .7em;padding-left:1.4em}.msg.ai li{margin:.2em 0}
+  .msg.ai strong{font-weight:650}
+  .msg.ai code{font-family:var(--mono);font-size:.85em;background:#e2e2e2;padding:.1em .38em;border-radius:5px}
+  .msg.ai pre{background:#111;color:#f3f3f3;border-radius:12px;padding:12px 14px;overflow-x:auto;margin:.5em 0 .8em}
+  .msg.ai pre code{background:none;padding:0;color:inherit;font-size:.82rem;line-height:1.5}
+  .msg.ai pre.tab{background:var(--bg);color:var(--ink);border:1px solid var(--ink)}
+  .msg.ai pre.tab code{font-size:.9rem;line-height:1.7;letter-spacing:.04em}
+  .msg.ai blockquote{border-left:3px solid #c4c4c4;padding-left:12px;color:#444;margin:.5em 0 .8em}
+  .msg.ai hr{border:none;border-top:1px solid #d6d6d6;margin:.9em 0}
+  .msg.ai a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+  .msg.ai .table-wrap{overflow-x:auto;margin:.5em 0 .8em}
+  .msg.ai table{border-collapse:collapse;font-size:.875rem;width:100%}
+  .msg.ai th,.msg.ai td{border:1px solid #d0d0d0;padding:6px 10px;text-align:left}
+  .msg.ai th{background:#e6e6e6;font-weight:650}
+  .msg.error{border:1px solid var(--ink);background:var(--bg)}
 
-  .app {
-    width: 100%;
-    max-width: 760px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
+  .intro{margin:auto;text-align:center;max-width:420px;color:var(--muted);font-size:.9rem;line-height:1.6}
+  .suggestions{margin-top:18px;display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+  .suggestions button,.chip{font-size:.8125rem;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:8px 14px;transition:border-color .15s}
+  .suggestions button:hover,.chip:hover{border-color:var(--ink)}
 
-  /* ---------- Header ---------- */
-  header {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 22px 24px 18px;
-    border-bottom: 1px solid var(--line);
-  }
+  .typing{align-self:flex-start;display:flex;align-items:center;gap:10px;background:var(--ai-bg);color:var(--muted);font-size:.875rem;padding:11px 16px;border-radius:20px 20px 20px 6px}
+  .dots{display:inline-flex;gap:4px}
+  .dots i{width:5px;height:5px;border-radius:50%;background:var(--muted);animation:pulse 1.2s infinite ease-in-out}
+  .dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+  @keyframes pulse{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
 
-  /* Four strings: G D A E, thicker toward the low end */
-  .strings {
-    width: 34px;
-    height: 26px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    flex-shrink: 0;
-  }
-  .strings span { display: block; background: var(--ink); border-radius: 2px; }
-  .strings span:nth-child(1) { height: 1px; }
-  .strings span:nth-child(2) { height: 1.5px; }
-  .strings span:nth-child(3) { height: 2.5px; }
-  .strings span:nth-child(4) { height: 4px; }
+  .composer{padding:14px var(--px) 22px;border-top:1px solid var(--line)}
+  .field{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid transparent;border-radius:999px;padding:6px 6px 6px 20px;transition:border-color .15s,background .15s}
+  .field:focus-within{background:var(--bg);border-color:var(--ink)}
+  #input{flex:1;min-width:0;border:none;outline:none;background:transparent;font:inherit;font-size:.9375rem;padding:8px 0}
+  #input::placeholder{color:#9a9a9a}
+  #send{display:inline-flex;align-items:center;gap:8px;font-size:.875rem;font-weight:600;color:#fff;background:var(--ink);border:none;border-radius:999px;padding:10px 18px;transition:opacity .15s}
+  #send:hover{opacity:.85}#send:disabled{opacity:.35;cursor:not-allowed}
+  #send svg{width:15px;height:15px}
 
-  header h1 {
-    font-size: 1.125rem;
-    font-weight: 650;
-    letter-spacing: -0.01em;
-    line-height: 1.2;
-  }
-  header p {
-    font-size: 0.8125rem;
-    color: var(--muted);
-    margin-top: 3px;
-  }
+  /* ---------- Umum untuk panel alat ---------- */
+  h2{font-size:1rem;font-weight:650;letter-spacing:-.01em}
+  .sub{font-size:.8125rem;color:var(--muted);margin:4px 0 16px;line-height:1.5}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+  .row label{font-size:.8125rem;color:var(--muted)}
+  select{font:inherit;font-size:.875rem;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 10px}
+  .btn{font-size:.875rem;font-weight:600;background:var(--ink);color:#fff;border:1px solid var(--ink);border-radius:999px;padding:9px 18px}
+  .btn.ghost{background:var(--bg);color:var(--ink)}
+  .btn:disabled{opacity:.35;cursor:not-allowed}
+  hr.sep{border:none;border-top:1px solid var(--line);margin:26px 0}
 
-  /* ---------- Chat area ---------- */
-  #chat {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    scroll-behavior: smooth;
-  }
-  #chat::-webkit-scrollbar { width: 8px; }
-  #chat::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 8px; }
-  #chat::-webkit-scrollbar-track { background: transparent; }
+  /* ---------- Fretboard ---------- */
+  .fbwrap{overflow-x:auto;padding-bottom:6px}
+  .fb{min-width:640px;display:grid;grid-template-columns:48px repeat(12,1fr)}
+  .fb .n{font-size:.6875rem;color:var(--muted);text-align:center;padding-bottom:6px}
+  .fb .c{position:relative;height:46px;border:none;background:none;border-left:2px solid var(--line)}
+  .fb .c[data-f="0"]{border-left:none;border-right:5px solid var(--ink)}
+  .fb .c::before{content:"";position:absolute;left:0;right:0;top:50%;height:var(--w);background:#444;transform:translateY(-50%)}
+  .fb .c i{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:var(--bg);border:1.5px solid var(--ink);font-style:normal;font-size:.6875rem;font-weight:650;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s}
+  .fb .c[data-f="0"] i{opacity:1}
+  .fb .c.on i,.fb .c.hit i{opacity:1}
+  .fb .c.root i,.fb .c.hit i{background:var(--ink);color:#fff}
+  .fb .c:hover i{opacity:.5}
+  .fbinfo{margin-top:14px;min-height:1.5em;font-size:.9rem}
 
-  .msg {
-    max-width: 82%;
-    padding: 11px 16px;
-    font-size: 0.9375rem;
-    line-height: 1.55;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-  }
-  .msg.user {
-    align-self: flex-end;
-    background: var(--user-bg);
-    color: var(--user-ink);
-    border-radius: 20px 20px 6px 20px;
-  }
-  .msg.ai {
-    align-self: flex-start;
-    background: var(--ai-bg);
-    color: var(--ai-ink);
-    border-radius: 20px 20px 20px 6px;
-    white-space: normal;
-  }
+  /* ---------- Kuis ---------- */
+  .q{font-size:1.0625rem;font-weight:600;line-height:1.45;margin:16px 0}
+  .opts{display:grid;gap:8px}
+  .opt{text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:14px;padding:12px 16px;font-size:.9375rem;transition:border-color .15s}
+  .opt:hover:not(:disabled){border-color:var(--ink)}
+  .opt:disabled{cursor:default}
+  .opt.ok{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .opt.bad{border-color:var(--ink);text-decoration:line-through;color:var(--muted)}
+  .exp{margin-top:14px;padding:12px 16px;background:var(--ai-bg);border-radius:14px;font-size:.875rem;line-height:1.55}
+  .score{font-size:.8125rem;color:var(--muted)}
 
-  /* Konten hasil render markdown di bubble AI */
-  .msg.ai > :first-child { margin-top: 0; }
-  .msg.ai > :last-child { margin-bottom: 0; }
-  .msg.ai p { margin: 0 0 .65em; }
-  .msg.ai h4 { font-size: .9375rem; font-weight: 650; margin: 1em 0 .4em; }
-  .msg.ai ul, .msg.ai ol { margin: .3em 0 .7em; padding-left: 1.4em; }
-  .msg.ai li { margin: .2em 0; }
-  .msg.ai strong { font-weight: 650; }
-  .msg.ai code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: .85em;
-    background: #e2e2e2;
-    padding: .1em .38em;
-    border-radius: 5px;
-  }
-  .msg.ai pre {
-    background: #111;
-    color: #f3f3f3;
-    border-radius: 12px;
-    padding: 12px 14px;
-    overflow-x: auto;
-    margin: .5em 0 .8em;
-  }
-  .msg.ai pre code { background: none; padding: 0; color: inherit; font-size: .82rem; line-height: 1.5; }
-  .msg.ai blockquote { border-left: 3px solid #c4c4c4; padding-left: 12px; color: #444; margin: .5em 0 .8em; }
-  .msg.ai hr { border: none; border-top: 1px solid #d6d6d6; margin: .9em 0; }
-  .msg.ai a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
-  .msg.ai .table-wrap { overflow-x: auto; margin: .5em 0 .8em; }
-  .msg.ai table { border-collapse: collapse; font-size: .875rem; width: 100%; }
-  .msg.ai th, .msg.ai td { border: 1px solid #d0d0d0; padding: 6px 10px; text-align: left; }
-  .msg.ai th { background: #e6e6e6; font-weight: 650; }
-  .msg.error {
-    border: 1px solid #111;
-    background: var(--bg);
-  }
+  /* ---------- Tuner & metronome ---------- */
+  .ref{display:flex;gap:8px;flex-wrap:wrap}
+  .ref button{flex:1;min-width:64px;border:1px solid var(--line);background:var(--bg);border-radius:14px;padding:12px 0;font-weight:650;font-size:1rem}
+  .ref button small{display:block;font-weight:400;font-size:.6875rem;color:var(--muted)}
+  .ref button:hover{border-color:var(--ink)}
+  .tn{text-align:center;margin:10px 0 4px;font-size:3rem;font-weight:650;letter-spacing:-.02em;line-height:1}
+  .cents{text-align:center;font-size:.8125rem;color:var(--muted);min-height:1.4em}
+  .meter{position:relative;height:30px;margin:12px 0 16px;border-bottom:1px solid var(--ink)}
+  .meter::after{content:"";position:absolute;left:50%;bottom:0;height:12px;border-left:1px solid var(--muted)}
+  #needle{position:absolute;bottom:0;left:50%;width:3px;height:26px;margin-left:-1.5px;background:var(--ink);border-radius:2px;transition:left .1s}
+  .beats{display:flex;gap:10px;justify-content:center;margin:14px 0}
+  .beats i{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--ink)}
+  .beats i.b{background:var(--ink)}
+  input[type=range]{flex:1;min-width:140px;accent-color:#111}
+  .bpm{font-weight:650;font-size:1.25rem;min-width:3.4em}
 
-  /* ---------- Empty state ---------- */
-  .intro {
-    margin: auto;
-    text-align: center;
-    max-width: 420px;
-    color: var(--muted);
-    font-size: 0.9rem;
-    line-height: 1.6;
+  @media (max-width:860px){
+    :root{--px:16px}
+    .side{position:fixed;z-index:30;top:0;bottom:0;left:0;width:min(300px,84vw);transform:translateX(-100%);visibility:hidden;transition:transform .22s ease,visibility 0s .22s;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+    .side.open{transform:none;visibility:visible;transition-delay:0s}
+    .scrim{display:block;position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .22s}
+    .scrim.show{opacity:1;pointer-events:auto}
+    .topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line)}
+    .topbar button{width:40px;height:40px;border:1px solid var(--line);background:var(--bg);border-radius:12px;display:grid;place-items:center}
+    .topbar svg{width:20px;height:20px}
+    .topbar span{font-weight:650;font-size:.9375rem}
+    .panel{padding-top:16px;padding-bottom:16px}#chat{padding-top:16px;padding-bottom:16px}.composer{padding-top:12px;padding-bottom:16px}
+    .msg{max-width:90%}#send .label{display:none}#send{padding:10px 12px}
+    .fab{right:16px;width:48px;padding:0;justify-content:center}.fab span{display:none}
   }
-  .suggestions {
-    margin-top: 18px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-  }
-  .suggestions button {
-    font: inherit;
-    font-size: 0.8125rem;
-    color: var(--ink);
-    background: var(--bg);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 8px 14px;
-    cursor: pointer;
-    transition: border-color .15s, background .15s;
-  }
-  .suggestions button:hover { border-color: var(--ink); }
-
-  /* ---------- Typing indicator ---------- */
-  .typing {
-    align-self: flex-start;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--ai-bg);
-    color: var(--muted);
-    font-size: 0.875rem;
-    padding: 11px 16px;
-    border-radius: 20px 20px 20px 6px;
-  }
-  .dots { display: inline-flex; gap: 4px; }
-  .dots i {
-    width: 5px; height: 5px; border-radius: 50%;
-    background: var(--muted);
-    animation: pulse 1.2s infinite ease-in-out;
-  }
-  .dots i:nth-child(2) { animation-delay: .15s; }
-  .dots i:nth-child(3) { animation-delay: .3s; }
-  @keyframes pulse {
-    0%, 80%, 100% { opacity: .25; transform: translateY(0); }
-    40% { opacity: 1; transform: translateY(-3px); }
-  }
-
-  /* ---------- Input ---------- */
-  .composer {
-    padding: 14px 24px 22px;
-    border-top: 1px solid var(--line);
-    background: var(--bg);
-  }
-  .field {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--surface);
-    border: 1px solid transparent;
-    border-radius: 999px;
-    padding: 6px 6px 6px 20px;
-    transition: border-color .15s, background .15s;
-  }
-  .field:focus-within { background: var(--bg); border-color: var(--ink); }
-
-  #input {
-    flex: 1;
-    min-width: 0;
-    border: none;
-    outline: none;
-    background: transparent;
-    font: inherit;
-    font-size: 0.9375rem;
-    color: var(--ink);
-    padding: 8px 0;
-  }
-  #input::placeholder { color: #9a9a9a; }
-
-  #send {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font: inherit;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #fff;
-    background: var(--ink);
-    border: none;
-    border-radius: 999px;
-    padding: 10px 18px;
-    cursor: pointer;
-    transition: opacity .15s, transform .1s;
-  }
-  #send:hover { opacity: .85; }
-  #send:active { transform: scale(.97); }
-  #send:disabled { opacity: .35; cursor: not-allowed; }
-  #send svg { width: 15px; height: 15px; }
-
-  button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-
-  @media (max-width: 520px) {
-    header { padding: 18px 16px 14px; }
-    #chat { padding: 16px; }
-    .composer { padding: 12px 16px 16px; }
-    .msg { max-width: 90%; }
-    #send .label { display: none; }
-    #send { padding: 10px 12px; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    #chat { scroll-behavior: auto; }
-    .dots i { animation: none; opacity: .6; }
-  }
+  @media (prefers-reduced-motion:reduce){#chat{scroll-behavior:auto}.dots i{animation:none;opacity:.6}#needle,.fb .c i,.side,.scrim{transition:none}}
 </style>
 </head>
 <body>
-  <div class="app">
-    <header>
-      <div class="strings" aria-hidden="true">
-        <span></span><span></span><span></span><span></span>
-      </div>
+<div class="app">
+  <div class="scrim" id="scrim"></div>
+  <aside class="side" id="side" aria-label="Menu fitur">
+    <div class="brand">
+      <div class="strings" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
       <div>
         <h1>Guitar Bass Music Theory AI</h1>
         <p>Tugas FASTERA 2026 Week 3</p>
       </div>
-    </header>
+    </div>
+    <nav class="menu" role="tablist" aria-orientation="vertical" aria-label="Fitur">
+      <button type="button" role="tab" data-tab="Chat" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span><b>Chatbot</b><small>Tanya soal teori bass</small></span></button>
+      <button type="button" role="tab" data-tab="Fret" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="1.5"/><path d="M9 6v12M15 6v12M3 12h18"/></svg><span><b>Fretboard</b><small>Nada di neck bass</small></span></button>
+      <button type="button" role="tab" data-tab="Quiz" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.8M12 17h.01"/></svg><span><b>Latihan</b><small>Kuis untuk pemula</small></span></button>
+      <button type="button" role="tab" data-tab="Tool" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h3l2-6 4 12 3-9 2 3h4"/></svg><span><b>Tuner dan metronome</b><small>Setem dan latih tempo</small></span></button>
+    </nav>
+  </aside>
 
+  <div class="main">
+    <div class="topbar">
+      <button type="button" id="menuBtn" aria-label="Buka menu" aria-controls="side" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <span id="topTitle">Chatbot</span>
+    </div>
+
+  <!-- ===== Chat ===== -->
+  <section class="panel" id="pChat">
     <main id="chat" aria-live="polite">
       <div class="intro" id="intro">
         Mulai dengan pertanyaan Anda sendiri, atau pilih salah satu contoh berikut.
@@ -290,268 +191,443 @@
           <button type="button">Apa itu root note dan fifth pada bass?</button>
           <button type="button">Jelaskan tangga nada mayor</button>
           <button type="button">Bagaimana membuat walking bass?</button>
+          <button type="button">Buatkan tab bass sederhana untuk pemula</button>
         </div>
       </div>
     </main>
-
     <div class="composer">
       <div class="field">
         <input id="input" type="text" placeholder="Ketik pertanyaan Anda..." autocomplete="off" aria-label="Pertanyaan Anda">
-        <button id="send" type="button">
-          <span class="label">Kirim</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
-          </svg>
+        <button id="send" type="button"><span class="label">Kirim</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
         </button>
       </div>
     </div>
+  </section>
+
+  <!-- ===== Fretboard ===== -->
+  <section class="panel" id="pFret" hidden>
+    <h2>Fretboard bass 4 senar</h2>
+    <p class="sub">Klik posisi mana saja untuk melihat nama nadanya dan mendengar bunyinya. Pilih tangga nada untuk menandai nada yang perlu Anda mainkan.</p>
+    <div class="row">
+      <label for="root">Root</label><select id="root"></select>
+      <label for="scale">Tangga nada</label>
+      <select id="scale">
+        <option value="">Tidak ada</option>
+        <option value="mayor">Mayor</option>
+        <option value="minor">Minor alami</option>
+        <option value="pmayor">Pentatonik mayor</option>
+        <option value="pminor">Pentatonik minor</option>
+      </select>
+    </div>
+    <div class="fbwrap"><div class="fb" id="fb"></div></div>
+    <p class="fbinfo" id="fbInfo">Klik sebuah fret.</p>
+    <div class="row"><button class="btn ghost" id="askScale" type="button" hidden>Tanya AI tentang tangga nada ini</button></div>
+  </section>
+
+  <!-- ===== Kuis ===== -->
+  <section class="panel" id="pQuiz" hidden>
+    <h2>Latihan teori bass</h2>
+    <p class="sub">Soal pilihan ganda tingkat pemula. Jika webhook n8n aktif, soal baru dibuat oleh AI. Jika tidak, soal diambil dari bank soal bawaan.</p>
+    <div class="row"><span class="score" id="score">Skor 0 dari 0</span></div>
+    <div id="quizBox"></div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn" id="nextQ" type="button">Soal berikutnya</button>
+      <button class="btn ghost" id="aiQ" type="button">Soal baru dari AI</button>
+    </div>
+  </section>
+
+  <!-- ===== Tuner dan metronome ===== -->
+  <section class="panel" id="pTool" hidden>
+    <h2>Tuner</h2>
+    <p class="sub">Tekan senar untuk mendengar nada acuan, lalu cocokkan dengan bass Anda. Atau nyalakan mikrofon agar nada bass Anda terdeteksi.</p>
+    <div class="ref" id="ref"></div>
+    <div class="row" style="margin-top:14px"><button class="btn" id="micBtn" type="button">Nyalakan mikrofon</button></div>
+    <div class="tn" id="tnNote">-</div>
+    <div class="cents" id="tnCents">Mikrofon belum aktif</div>
+    <div class="meter" aria-hidden="true"><div id="needle"></div></div>
+
+    <hr class="sep">
+    <h2>Metronome</h2>
+    <p class="sub">Ketukan pertama lebih tinggi sebagai penanda awal birama 4/4.</p>
+    <div class="beats" id="beats"><i></i><i></i><i></i><i></i></div>
+    <div class="row">
+      <span class="bpm" id="bpmVal">80</span>
+      <input type="range" id="bpm" min="40" max="200" value="80" aria-label="Tempo dalam BPM">
+      <button class="btn" id="metBtn" type="button">Mulai</button>
+    </div>
+  </section>
+
+    <button type="button" class="fab" id="chatFab" aria-label="Buka chatbot" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span>Chatbot</span>
+    </button>
   </div>
+</div>
 
 <script>
   // Ganti dengan URL webhook n8n Anda
   const WEBHOOK_URL = "https://zxanimation.app.n8n.cloud/webhook/076672ec-dcdc-49b7-a95e-d5e5923c8f52";
 
-  const chat = document.getElementById("chat");
-  const input = document.getElementById("input");
-  const sendBtn = document.getElementById("send");
-  const intro = document.getElementById("intro");
+  const $ = (id) => document.getElementById(id);
 
+  /* ============ Navigasi tab ============ */
+  const TITLES = { Chat: "Chatbot", Fret: "Fretboard", Quiz: "Latihan", Tool: "Tuner dan metronome" };
+  const isMobile = () => window.matchMedia("(max-width:860px)").matches;
+  function setSide(open) {
+    $("side").classList.toggle("open", open);
+    $("scrim").classList.toggle("show", open);
+    $("menuBtn").setAttribute("aria-expanded", String(open));
+  }
+  $("menuBtn").addEventListener("click", () => setSide(!$("side").classList.contains("open")));
+  $("scrim").addEventListener("click", () => setSide(false));
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") setSide(false); });
+  window.matchMedia("(min-width:861px)").addEventListener("change", () => setSide(false));
+
+  $("chatFab").addEventListener("click", () => go("Chat"));
+
+  function go(name) {
+    document.querySelectorAll(".menu button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === name)));
+    ["Chat", "Fret", "Quiz", "Tool"].forEach((t) => { $("p" + t).hidden = t !== name; });
+    $("topTitle").textContent = TITLES[name];
+    $("chatFab").hidden = name === "Chat";
+    setSide(false);
+    if (name === "Chat" && !isMobile()) $("input").focus();
+    if (name !== "Tool") { stopMic(); stopMet(); }
+  }
+  document.querySelectorAll(".menu button").forEach((b) => b.addEventListener("click", () => go(b.dataset.tab)));
+
+  /* ============ Audio ============ */
+  const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+  let ac;
+  function ctx() {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    if (ac.state === "suspended") ac.resume();
+    return ac;
+  }
+  const midiFreq = (m) => 440 * Math.pow(2, (m - 69) / 12);
+  function tone(f, d = 1.2, v = 0.35, t0) {
+    const c = ctx(), t = t0 ?? c.currentTime, g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(v, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, t + d);
+    g.connect(c.destination);
+    [[f, "triangle", 1], [f * 2, "sine", 0.3]].forEach(([fr, ty, k]) => {
+      const o = c.createOscillator(), gg = c.createGain();
+      o.type = ty; o.frequency.value = fr; gg.gain.value = k;
+      o.connect(gg).connect(g); o.start(t); o.stop(t + d + 0.05);
+    });
+  }
+
+  /* ============ Fretboard ============ */
+  const STR = [{ n: "G", m: 43, w: 1 }, { n: "D", m: 38, w: 1.5 }, { n: "A", m: 33, w: 2.5 }, { n: "E", m: 28, w: 4 }];
+  const SCALES = { mayor: [0, 2, 4, 5, 7, 9, 11], minor: [0, 2, 3, 5, 7, 8, 10], pmayor: [0, 2, 4, 7, 9], pminor: [0, 3, 5, 7, 10] };
+  const SCALE_NAME = { mayor: "mayor", minor: "minor alami", pmayor: "pentatonik mayor", pminor: "pentatonik minor" };
+  const fb = $("fb");
+
+  NOTES.forEach((n, i) => $("root").add(new Option(n, i)));
+
+  let html = '<div class="n"></div>';
+  for (let f = 1; f <= 12; f++) html += '<div class="n">' + ([3, 5, 7, 9, 12].includes(f) ? f : "") + "</div>";
+  STR.forEach((s, si) => {
+    for (let f = 0; f <= 12; f++)
+      html += '<button class="c" type="button" style="--w:' + s.w + 'px" data-s="' + si + '" data-f="' + f + '" aria-label="Senar ' + s.n + ' fret ' + f + '"><i></i></button>';
+  });
+  fb.innerHTML = html;
+
+  function paintFretboard() {
+    const root = +$("root").value, sc = SCALES[$("scale").value];
+    fb.querySelectorAll(".c").forEach((b) => {
+      const note = (STR[b.dataset.s].m + +b.dataset.f) % 12, rel = (note - root + 12) % 12;
+      const inScale = !!sc && sc.includes(rel);
+      b.classList.toggle("on", inScale);
+      b.classList.toggle("root", inScale && rel === 0);
+      b.firstChild.textContent = NOTES[note];
+    });
+    $("askScale").hidden = !sc;
+  }
+  $("root").addEventListener("change", paintFretboard);
+  $("scale").addEventListener("change", paintFretboard);
+
+  fb.addEventListener("click", (e) => {
+    const b = e.target.closest(".c");
+    if (!b) return;
+    const s = STR[b.dataset.s], f = +b.dataset.f, m = s.m + f;
+    tone(midiFreq(m));
+    $("fbInfo").innerHTML = "Senar <strong>" + s.n + "</strong>, fret <strong>" + f + "</strong> = nada <strong>" + NOTES[m % 12] + "</strong>";
+    b.classList.add("hit");
+    setTimeout(() => b.classList.remove("hit"), 900);
+  });
+
+  $("askScale").addEventListener("click", () => {
+    const k = $("scale").value, r = NOTES[+$("root").value];
+    go("Chat");
+    sendMessage("Jelaskan tangga nada " + r + " " + SCALE_NAME[k] + " untuk bass. Sebutkan nada-nadanya dan berikan contoh tab bass sederhana.");
+  });
+  paintFretboard();
+
+  /* ============ Kuis ============ */
+  const BANK = [
+    { q: "Urutan senar bass 4 senar standar dari yang paling tebal ke paling tipis?", o: ["E A D G", "G D A E", "E B G D", "A D G C"], a: 0, e: "Bass standar disetel E-A-D-G, mulai dari senar paling tebal (E) yang bernada paling rendah." },
+    { q: "Dalam tangga nada C mayor, nada apa yang menjadi fifth?", o: ["F", "G", "A", "E"], a: 1, e: "C D E F G: nada kelima adalah G. Root dan fifth adalah dasar garis bass yang paling aman." },
+    { q: "Senar A pada fret 3 menghasilkan nada apa?", o: ["B", "C", "D", "A#"], a: 1, e: "Setiap fret naik satu semitone: A, A#, B, C. Jadi fret 3 senar A adalah C." },
+    { q: "Berapa semitone jarak antara root dan fifth?", o: ["5", "6", "7", "8"], a: 2, e: "Fifth berjarak 7 semitone dari root, misalnya C ke G." },
+    { q: "Pola jarak tangga nada mayor yang benar? (W = satu nada penuh, H = setengah nada)", o: ["W W H W W W H", "W H W W H W W", "H W W H W W W", "W W W H W W H"], a: 0, e: "Pola mayor adalah W W H W W W H, dengan setengah nada di antara nada 3-4 dan 7-8." },
+    { q: "Fret berapa yang memberi nada octave dari senar kosong?", o: ["Fret 5", "Fret 7", "Fret 10", "Fret 12"], a: 3, e: "Fret 12 berada tepat di tengah senar dan bernada sama dengan senar kosong, satu oktaf lebih tinggi." },
+    { q: "Senar E pada fret 5 menghasilkan nada yang sama dengan...", o: ["Senar A kosong", "Senar D kosong", "Senar G kosong", "Senar E fret 7"], a: 0, e: "E fret 5 adalah A, sama dengan senar A kosong. Trik ini dipakai untuk menyetem antar senar." },
+    { q: "Walking bass biasanya disusun dari...", o: ["Satu nada berulang", "Chord tone dan nada penghubung", "Hanya nada di luar tangga nada", "Hanya senar kosong"], a: 1, e: "Walking bass bergerak per ketukan memakai chord tone (root, third, fifth) yang dihubungkan nada pendekatan." }
+  ];
+  const TOPICS = ["interval", "nama nada di fretboard", "tangga nada mayor", "tangga nada minor", "root dan fifth", "ritme dan birama 4/4", "walking bass", "pentatonik"];
+  let cur = null, ok = 0, total = 0, order = [], answered = false;
+
+  function renderQ(q) {
+    cur = q; answered = false;
+    $("quizBox").innerHTML = '<div class="q">' + esc(q.q) + '</div><div class="opts">' +
+      q.o.map((t, i) => '<button class="opt" type="button" data-i="' + i + '">' + esc(t) + "</button>").join("") +
+      '</div><div id="exp"></div>';
+  }
+  function nextLocal() {
+    if (!order.length) order = BANK.map((_, i) => i).sort(() => Math.random() - 0.5);
+    renderQ(BANK[order.pop()]);
+  }
+  $("quizBox").addEventListener("click", (e) => {
+    const b = e.target.closest(".opt");
+    if (!b || answered) return;
+    answered = true; total++;
+    const i = +b.dataset.i;
+    if (i === cur.a) ok++;
+    document.querySelectorAll(".opt").forEach((x) => {
+      x.disabled = true;
+      if (+x.dataset.i === cur.a) x.classList.add("ok");
+      else if (x === b) x.classList.add("bad");
+    });
+    $("exp").innerHTML = '<div class="exp"><strong>' + (i === cur.a ? "Benar." : "Belum tepat.") + "</strong> " + esc(cur.e) + "</div>";
+    $("score").textContent = "Skor " + ok + " dari " + total;
+  });
+  $("nextQ").addEventListener("click", nextLocal);
+
+  $("aiQ").addEventListener("click", async () => {
+    const btn = $("aiQ"); btn.disabled = true; btn.textContent = "AI sedang membuat soal...";
+    try {
+      const topic = TOPICS[Math.floor(Math.random() * TOPICS.length)];
+      const reply = await askAI('Buat 1 soal pilihan ganda teori musik bass untuk pemula tentang ' + topic +
+        ' dalam bahasa Indonesia. Balas HANYA dengan JSON tanpa teks lain: {"q":"pertanyaan","o":["A","B","C","D"],"a":0,"e":"penjelasan singkat"} (a adalah indeks jawaban benar, 0 sampai 3).');
+      const m = reply.match(/\{[\s\S]*\}/);
+      const q = JSON.parse(m[0]);
+      if (!q.q || !Array.isArray(q.o) || q.o.length !== 4 || !(q.a >= 0 && q.a <= 3)) throw new Error("format");
+      renderQ(q);
+    } catch (err) {
+      console.error(err);
+      nextLocal();
+      $("quizBox").insertAdjacentHTML("afterbegin", '<div class="score">AI tidak tersedia, memakai soal bawaan.</div>');
+    } finally { btn.disabled = false; btn.textContent = "Soal baru dari AI"; }
+  });
+  nextLocal();
+
+  /* ============ Tuner ============ */
+  [["E", 28, 1], ["A", 33, 1], ["D", 38, 2], ["G", 43, 2]].forEach(([n, m, o]) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.innerHTML = n + "<small>" + n + o + "</small>";
+    b.addEventListener("click", () => tone(midiFreq(m), 2.5, 0.45));
+    $("ref").appendChild(b);
+  });
+
+  let mic = null, raf = 0;
+  function detect(buf, sr) {
+    const n = 2400, maxL = Math.floor(sr / 35), minL = Math.floor(sr / 400);
+    let rms = 0;
+    for (let i = 0; i < n; i++) rms += buf[i] * buf[i];
+    if (Math.sqrt(rms / n) < 0.01) return -1;
+    const c = new Float32Array(maxL + 1);
+    for (let l = 0; l <= maxL; l++) { let s = 0; for (let i = 0; i < n; i++) s += buf[i] * buf[i + l]; c[l] = s; }
+    let d = 0; while (d < maxL && c[d] > c[d + 1]) d++;
+    let best = -1, bv = 0;
+    for (let l = Math.max(d, minL); l < maxL; l++) if (c[l] > bv) { bv = c[l]; best = l; }
+    return best > 0 && bv > 0.3 * c[0] ? sr / best : -1;
+  }
+  async function startMic() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+      const c = ctx(), an = c.createAnalyser(); an.fftSize = 8192;
+      c.createMediaStreamSource(stream).connect(an);
+      mic = { stream, an }; $("micBtn").textContent = "Matikan mikrofon"; $("tnCents").textContent = "Mainkan satu senar";
+      const buf = new Float32Array(an.fftSize); let last = 0;
+      const loop = (t) => {
+        raf = requestAnimationFrame(loop);
+        if (t - last < 90) return; last = t;
+        an.getFloatTimeDomainData(buf);
+        const f = detect(buf, c.sampleRate);
+        if (f < 0) return;
+        const midi = 69 + 12 * Math.log2(f / 440), r = Math.round(midi), cents = Math.round((midi - r) * 100);
+        $("tnNote").textContent = NOTES[((r % 12) + 12) % 12];
+        $("tnCents").textContent = Math.abs(cents) < 6 ? "Tepat" : cents < 0 ? "Terlalu rendah, kencangkan senar (" + cents + " cent)" : "Terlalu tinggi, kendurkan senar (+" + cents + " cent)";
+        $("needle").style.left = 50 + Math.max(-50, Math.min(50, cents)) + "%";
+      };
+      raf = requestAnimationFrame(loop);
+    } catch (err) {
+      $("tnCents").textContent = "Mikrofon tidak bisa diakses. Izinkan akses mikrofon di browser, lalu coba lagi.";
+    }
+  }
+  function stopMic() {
+    if (!mic) return;
+    cancelAnimationFrame(raf); mic.stream.getTracks().forEach((t) => t.stop()); mic = null;
+    $("micBtn").textContent = "Nyalakan mikrofon"; $("tnNote").textContent = "-";
+    $("tnCents").textContent = "Mikrofon belum aktif"; $("needle").style.left = "50%";
+  }
+  $("micBtn").addEventListener("click", () => (mic ? stopMic() : startMic()));
+
+  /* ============ Metronome ============ */
+  let metTimer = 0, nextT = 0, beat = 0;
+  const dots = $("beats").children;
+  $("bpm").addEventListener("input", () => { $("bpmVal").textContent = $("bpm").value; });
+  function stopMet() {
+    clearInterval(metTimer); metTimer = 0; $("metBtn").textContent = "Mulai";
+    [...dots].forEach((d) => d.classList.remove("b"));
+  }
+  $("metBtn").addEventListener("click", () => {
+    if (metTimer) return stopMet();
+    const c = ctx(); nextT = c.currentTime + 0.05; beat = 0; $("metBtn").textContent = "Berhenti";
+    metTimer = setInterval(() => {
+      while (nextT < c.currentTime + 0.12) {
+        const b = beat % 4, at = nextT;
+        tone(b === 0 ? 1500 : 1000, 0.06, 0.5, at);
+        setTimeout(() => { [...dots].forEach((d, i) => d.classList.toggle("b", i === b)); }, Math.max(0, (at - c.currentTime) * 1000));
+        nextT += 60 / +$("bpm").value; beat++;
+      }
+    }, 25);
+  });
+
+  /* ============ Chat ============ */
+  const chat = $("chat"), input = $("input"), sendBtn = $("send");
   let busy = false;
+  const scrollToBottom = () => { chat.scrollTop = chat.scrollHeight; };
 
-  function scrollToBottom() {
-    chat.scrollTop = chat.scrollHeight;
-  }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
-  /* ---------- Renderer markdown mini (aman dari injeksi HTML) ---------- */
-  function escapeHtml(s) {
-    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-  }
-
-  // Teks yang masuk ke fungsi ini sudah di-escape
   function inlineFormat(s) {
     const codes = [];
-    s = s.replace(/`([^`\n]+)`/g, (_, c) => {
-      codes.push(c);
-      return "\u0000" + (codes.length - 1) + "\u0000";
-    });
-    s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
-      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-    s = s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");      // **tebal**
-    s = s.replace(/__(.+?)__/g, "<strong>$1</strong>");          // __tebal__
-    s = s.replace(/\*(?!\s)([^*\n]*[^*\s])\*/g, "<strong>$1</strong>"); // *tebal*
-    s = s.replace(/(^|[\s(])_(?!\s)([^_\n]*[^_\s])_(?=$|[\s).,!?:;])/g, "$1<em>$2</em>"); // _miring_
+    s = s.replace(/`([^`\n]+)`/g, (_, c) => { codes.push(c); return "\u0000" + (codes.length - 1) + "\u0000"; });
+    s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    s = s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    s = s.replace(/__(.+?)__/g, "<strong>$1</strong>");
+    s = s.replace(/\*(?!\s)([^*\n]*[^*\s])\*/g, "<strong>$1</strong>");
+    s = s.replace(/(^|[\s(])_(?!\s)([^_\n]*[^_\s])_(?=$|[\s).,!?:;])/g, "$1<em>$2</em>");
     s = s.replace(/~~(.+?)~~/g, "<del>$1</del>");
-    s = s.replace(/\u0000(\d+)\u0000/g, (_, i) => "<code>" + codes[i] + "</code>");
-    return s;
+    return s.replace(/\u0000(\d+)\u0000/g, (_, i) => "<code>" + codes[i] + "</code>");
   }
 
   function renderMarkdown(src) {
     src = String(src).replace(/\r\n/g, "\n");
-    // Jika "\n" datang sebagai teks literal, ubah jadi baris baru sungguhan
     if (!src.includes("\n") && src.includes("\\n")) src = src.replace(/\\n/g, "\n");
-
-    // Ambil blok kode lebih dulu agar isinya tidak diformat
     const blocks = [];
-    src = src.replace(/```[^\n]*\n?([\s\S]*?)```/g, (_, code) => {
-      blocks.push(code.replace(/\n$/, ""));
-      return "\n\u0001" + (blocks.length - 1) + "\u0001\n";
-    });
+    src = src.replace(/```[^\n]*\n?([\s\S]*?)```/g, (_, code) => { blocks.push(code.replace(/\n$/, "")); return "\n\u0001" + (blocks.length - 1) + "\u0001\n"; });
 
-    const lines = escapeHtml(src).split("\n");
-    const reUl = /^\s*[-*•]\s+(.*)$/;
-    const reOl = /^\s*\d+[.)]\s+(.*)$/;
-    const reHeading = /^\s*(#{1,6})\s+(.*)$/;
-    const reQuote = /^\s*&gt;\s?(.*)$/;
-    const reHr = /^\s*([-*_])(\s*\1){2,}\s*$/;
-    const reCode = /^\u0001(\d+)\u0001$/;
+    const lines = esc(src).split("\n");
+    const reUl = /^\s*[-*•]\s+(.*)$/, reOl = /^\s*\d+[.)]\s+(.*)$/, reHeading = /^\s*(#{1,6})\s+(.*)$/;
+    const reQuote = /^\s*&gt;\s?(.*)$/, reHr = /^\s*([-*_])(\s*\1){2,}\s*$/, reCode = /^\u0001(\d+)\u0001$/;
     const reTableSep = /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/;
+    const isTableStart = (i) => lines[i] && lines[i].includes("|") && lines[i + 1] !== undefined && lines[i + 1].includes("-") && reTableSep.test(lines[i + 1]);
+    const isBlockStart = (i) => { const l = lines[i]; return reCode.test(l) || reHeading.test(l) || reQuote.test(l) || reHr.test(l) || reUl.test(l) || reOl.test(l) || isTableStart(i); };
+    const splitRow = (row) => row.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
 
-    const isTableStart = (i) =>
-      lines[i] && lines[i].includes("|") && lines[i + 1] !== undefined &&
-      lines[i + 1].includes("-") && reTableSep.test(lines[i + 1]);
-
-    const isBlockStart = (i) => {
-      const l = lines[i];
-      return reCode.test(l) || reHeading.test(l) || reQuote.test(l) || reHr.test(l) ||
-             reUl.test(l) || reOl.test(l) || isTableStart(i);
-    };
-
-    const splitRow = (row) =>
-      row.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
-
-    let html = "";
-    let i = 0;
-
+    let html = "", i = 0;
     while (i < lines.length) {
-      const line = lines[i];
-      let m;
-
+      const line = lines[i]; let m;
       if (!line.trim()) { i++; continue; }
-
       if ((m = line.match(reCode))) {
-        html += "<pre><code>" + escapeHtml(blocks[m[1]]) + "</code></pre>";
+        const code = blocks[m[1]];
+        // Blok yang berisi baris tab bass (G|---, D|---, A|---, E|---) tampil sebagai notasi tab
+        const isTab = /^\s*[GDAE]\s*\|/m.test(code);
+        html += "<pre" + (isTab ? ' class="tab"' : "") + "><code>" + esc(code) + "</code></pre>";
         i++; continue;
       }
-
-      if ((m = line.match(reHeading))) {
-        html += "<h4>" + inlineFormat(m[2]) + "</h4>";
-        i++; continue;
-      }
-
+      if ((m = line.match(reHeading))) { html += "<h4>" + inlineFormat(m[2]) + "</h4>"; i++; continue; }
       if (reHr.test(line)) { html += "<hr>"; i++; continue; }
-
       if (reQuote.test(line)) {
         const parts = [];
-        while (i < lines.length && (m = lines[i].match(reQuote))) {
-          parts.push(inlineFormat(m[1]));
-          i++;
-        }
-        html += "<blockquote>" + parts.join("<br>") + "</blockquote>";
-        continue;
+        while (i < lines.length && (m = lines[i].match(reQuote))) { parts.push(inlineFormat(m[1])); i++; }
+        html += "<blockquote>" + parts.join("<br>") + "</blockquote>"; continue;
       }
-
       if (isTableStart(i)) {
-        const head = splitRow(lines[i]);
-        i += 2;
-        let body = "";
+        const head = splitRow(lines[i]); i += 2; let body = "";
         while (i < lines.length && lines[i].includes("|") && lines[i].trim()) {
-          body += "<tr>" + splitRow(lines[i]).map((c) => "<td>" + inlineFormat(c) + "</td>").join("") + "</tr>";
-          i++;
+          body += "<tr>" + splitRow(lines[i]).map((c) => "<td>" + inlineFormat(c) + "</td>").join("") + "</tr>"; i++;
         }
-        html += '<div class="table-wrap"><table><thead><tr>' +
-          head.map((c) => "<th>" + inlineFormat(c) + "</th>").join("") +
-          "</tr></thead><tbody>" + body + "</tbody></table></div>";
-        continue;
+        html += '<div class="table-wrap"><table><thead><tr>' + head.map((c) => "<th>" + inlineFormat(c) + "</th>").join("") + "</tr></thead><tbody>" + body + "</tbody></table></div>"; continue;
       }
-
       if (reUl.test(line) || reOl.test(line)) {
-        const ordered = reOl.test(line);
-        const re = ordered ? reOl : reUl;
-        const tag = ordered ? "ol" : "ul";
-        let items = "";
+        const ordered = reOl.test(line), re = ordered ? reOl : reUl, tag = ordered ? "ol" : "ul"; let items = "";
         while (i < lines.length) {
-          // izinkan satu baris kosong di antara item daftar yang sama
           let j = i;
           if (!lines[j].trim() && lines[j + 1] !== undefined && re.test(lines[j + 1])) j++;
           if (!(m = lines[j].match(re))) break;
-          items += "<li>" + inlineFormat(m[1]) + "</li>";
-          i = j + 1;
+          items += "<li>" + inlineFormat(m[1]) + "</li>"; i = j + 1;
         }
-        html += "<" + tag + ">" + items + "</" + tag + ">";
-        continue;
+        html += "<" + tag + ">" + items + "</" + tag + ">"; continue;
       }
-
-      // Paragraf biasa
       const para = [];
-      while (i < lines.length && lines[i].trim() && (para.length === 0 || !isBlockStart(i))) {
-        para.push(inlineFormat(lines[i]));
-        i++;
-      }
+      while (i < lines.length && lines[i].trim() && (para.length === 0 || !isBlockStart(i))) { para.push(inlineFormat(lines[i])); i++; }
       html += "<p>" + para.join("<br>") + "</p>";
     }
-
     return html;
   }
 
-  function addMessage(text, type, extraClass) {
+  function addMessage(text, type, extra) {
     const el = document.createElement("div");
-    el.className = "msg " + type + (extraClass ? " " + extraClass : "");
-    if (type === "ai") {
-      el.innerHTML = renderMarkdown(text); // sudah di-escape, aman dari injeksi HTML
-    } else {
-      el.textContent = text;               // pesan pengguna tetap teks biasa
-    }
-    chat.appendChild(el);
-    scrollToBottom();
-    return el;
+    el.className = "msg " + type + (extra ? " " + extra : "");
+    if (type === "ai") el.innerHTML = renderMarkdown(text); else el.textContent = text;
+    chat.appendChild(el); scrollToBottom(); return el;
   }
-
   function showTyping() {
     const el = document.createElement("div");
-    el.className = "typing";
-    el.id = "typing";
+    el.className = "typing"; el.id = "typing";
     el.innerHTML = '<span class="dots"><i></i><i></i><i></i></span><span>AI sedang memikirkan...</span>';
-    chat.appendChild(el);
-    scrollToBottom();
+    chat.appendChild(el); scrollToBottom();
   }
+  const hideTyping = () => { const el = $("typing"); if (el) el.remove(); };
 
-  function hideTyping() {
-    const el = document.getElementById("typing");
-    if (el) el.remove();
-  }
-
-  // Mengambil teks jawaban dari berbagai kemungkinan format respons n8n
   function extractReply(data) {
     if (typeof data === "string") return data;
     if (Array.isArray(data)) return extractReply(data[0]);
     if (data && typeof data === "object") {
-      const keys = ["output", "text", "response", "message", "answer", "reply"];
-      for (const k of keys) {
+      for (const k of ["output", "text", "response", "message", "answer", "reply"])
         if (typeof data[k] === "string" && data[k].trim()) return data[k];
-      }
       return JSON.stringify(data, null, 2);
     }
     return "";
   }
 
-  function setBusy(state) {
-    busy = state;
-    sendBtn.disabled = state;
+  // Dipakai bersama oleh chat dan kuis
+  async function askAI(text) {
+    if (!WEBHOOK_URL) throw new Error("WEBHOOK_URL belum diisi");
+    const res = await fetch(WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chatInput: text }) });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const raw = await res.text(); let data;
+    try { data = JSON.parse(raw); } catch { data = raw; }
+    return extractReply(data);
   }
+
+  function setBusy(s) { busy = s; sendBtn.disabled = s; }
 
   async function sendMessage(textOverride) {
     const text = (textOverride ?? input.value).trim();
     if (!text || busy) return;
-
-    if (intro) intro.remove();
-
-    addMessage(text, "user");
-    input.value = "";
-    setBusy(true);
-    showTyping();
-
+    const intro = $("intro"); if (intro) intro.remove();
+    addMessage(text, "user"); input.value = ""; setBusy(true); showTyping();
     try {
-      const res = await fetch(WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chatInput: text })
-      });
-
-      if (!res.ok) throw new Error("HTTP " + res.status);
-
-      const raw = await res.text();
-      let data;
-      try { data = JSON.parse(raw); } catch { data = raw; }
-
-      const reply = extractReply(data);
-      hideTyping();
-      addMessage(reply || "Tidak ada jawaban dari AI.", "ai");
+      const reply = await askAI(text);
+      hideTyping(); addMessage(reply || "Tidak ada jawaban dari AI.", "ai");
     } catch (err) {
-      console.error(err);
-      hideTyping();
-      addMessage("Maaf, terjadi kesalahan jaringan", "ai", "error");
-    } finally {
-      setBusy(false);
-      input.focus();
-    }
+      console.error(err); hideTyping(); addMessage("Maaf, terjadi kesalahan jaringan", "ai", "error");
+    } finally { setBusy(false); input.focus(); }
   }
 
   sendBtn.addEventListener("click", () => sendMessage());
-
   input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
-      e.preventDefault();
-      sendMessage();
-    }
+    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); sendMessage(); }
   });
-
-  document.querySelectorAll(".suggestions button").forEach((btn) => {
-    btn.addEventListener("click", () => sendMessage(btn.textContent));
-  });
-
-  input.focus();
+  document.querySelectorAll(".suggestions button").forEach((b) => b.addEventListener("click", () => sendMessage(b.textContent)));
+  if (!isMobile()) input.focus();
 </script>
 </body>
 </html>
